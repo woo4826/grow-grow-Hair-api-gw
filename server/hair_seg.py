@@ -21,17 +21,35 @@ class HairSegmenter:
         # cv2.imshow(window_name, img)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        
     def most_frequent_colour(self, image_file_name):
         image = cv2.imread(image_file_name)
-        
-        pixels = np.float32(image.reshape(-1, 3))
-        n_colors = 5
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
-        flags = cv2.KMEANS_RANDOM_CENTERS
-        _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
-        _, counts = np.unique(labels, return_counts=True)
-        dominant = palette[np.argmax(counts)]
+
+        # Reshape image to 2D array of pixels
+        pixels = image.reshape(-1, 3)
+
+        # Apply the skin color conditions
+        skin_pixels = []
+        for pixel in pixels:
+            B, G, R = pixel  # Note: OpenCV reads images in BGR format
+            if (
+                R > 95 and G > 40 and B > 20 and
+                (max(R, G, B) - min(R, G, B)) > 15 and
+                abs(R - G) > 15 and R > G and R > B
+            ):
+                skin_pixels.append(pixel)
+
+        if skin_pixels:
+            skin_pixels = np.array(skin_pixels, dtype=np.float32)
+            n_colors = 5
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
+            flags = cv2.KMEANS_RANDOM_CENTERS
+            _, labels, palette = cv2.kmeans(skin_pixels, n_colors, None, criteria, 10, flags)
+            _, counts = np.unique(labels, return_counts=True)
+            dominant = palette[np.argmax(counts)]  # Most frequent skin tone in BGR
+        else:
+            # Fallback: If no skin tones are found, return a default color or raise an error
+            dominant = np.array([0, 0, 0], dtype=np.float32)  # or raise an error
+
         return dominant
 
     def segment_hair(self, image_file_name):
