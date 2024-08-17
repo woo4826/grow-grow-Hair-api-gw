@@ -62,7 +62,8 @@ class ImprovedBaldMaker:
         return bald_image_base64
     
 def make_bald_jinu(file: UploadFile, file_name : str):
-    file_path = f'./user_image_origin/{file_name}'
+    timestamp = str(int(time.time()))
+    file_path = f'./user_image_origin/{timestamp}.png'
     
     with open(file_path, 'wb') as f: #save file
         f.write(file.file.read())
@@ -73,7 +74,6 @@ def make_bald_jinu(file: UploadFile, file_name : str):
     segmenter.resize_and_show(image, window_name=file_path)
 
     output = segmenter.segment_hair(file_path)
-    timestamp = str(int(time.time()))
     output_file_path = f'./user_image_bald/{timestamp}.png'
     cv2.imwrite(output_file_path, output)
     return f'/static/{timestamp}.png'

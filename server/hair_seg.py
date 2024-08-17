@@ -62,6 +62,12 @@ class HairSegmenter:
             ori_images = cv2.imread(image_file_name, cv2.IMREAD_UNCHANGED)
             mp_image = mp.Image.create_from_file(image_file_name)
             #
+            # Apply Gaussian Blur to reduce noise
+            blurred_image = cv2.GaussianBlur(ori_images, (5, 5), 5)
+
+            # Apply Median Filter to further reduce noise
+            filtered_image = cv2.medianBlur(blurred_image, 5)
+            #
             segmentation_result = segmenter.segment(mp_image)
             category_mask = segmentation_result.category_mask
 
@@ -78,7 +84,11 @@ class HairSegmenter:
             flesh_tone_image[:, :, :] = self.flesh_tone_color
             if ori_images.shape[2] == 4:  # If ori_images has an alpha channel, remove it
                 ori_images = cv2.cvtColor(ori_images, cv2.COLOR_RGBA2RGB)
-
+            
+            
+            if filtered_image.shape[2] == 4:  # If ori_images has an alpha channel, remove it
+                filtered_image = cv2.cvtColor(filtered_image, cv2.COLOR_RGBA2RGB)
+            
             category_mask_np = category_mask.numpy_view()
             condition = np.stack((category_mask_np,) * 3, axis=-1) > 0.2
 
