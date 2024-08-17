@@ -45,10 +45,14 @@ async def start_game(request: Request,file: UploadFile | None = None):
             logger.debug(f"Received request body: {file.filename}")
             raise ValueError("Image data is missing")
 
-        bald_image_path = make_bald_jinu(file, file.filename)
+        # bald_image_path = make_bald_jinu(file, file.filename)
+        # user_id = str(uuid.uuid4())
+        # user_images[user_id] = bald_image_path
+        # return {"user_id": user_id, "bald_image": bald_image_path}
+        base64encoded = make_bald_jinu(file, file.filename)
         user_id = str(uuid.uuid4())
-        user_images[user_id] = bald_image_path
-        return {"user_id": user_id, "bald_image": bald_image_path}
+        # user_images[user_id] = bald_image_path
+        return {"user_id": user_id, "bald_image": base64encoded}
     except ValueError as e:
         logger.error(f"ValueError in start_game: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Invalid request: {str(e)}")

@@ -76,7 +76,10 @@ def make_bald_jinu(file: UploadFile, file_name : str):
     output = segmenter.segment_hair(file_path)
     output_file_path = f'./user_image_bald/{timestamp}.png'
     cv2.imwrite(output_file_path, output)
-    return f'/static/{timestamp}.png'
+    base64_image = base64.b64encode(open(output_file_path, 'rb').read()).decode()
+    return base64_image
+
+    # return f'/static/{timestamp}.png'
 
 def make_bald_advanced(image_base64):
     try:
