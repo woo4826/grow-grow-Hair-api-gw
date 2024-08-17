@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import logging
 from api import router
@@ -7,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 # CORS 설정 추가
+app.mount("/static", StaticFiles(directory="user_image_bald"), name="user_image_bald")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 모든 도메인 허용

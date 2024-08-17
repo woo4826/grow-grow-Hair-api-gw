@@ -1,10 +1,14 @@
+import time
 import cv2
+from fastapi import UploadFile
 import numpy as np
 import mediapipe as mp
 import base64
 import io
 from PIL import Image
 import re
+
+from hair_seg import HairSegmenter
 
 class ImprovedBaldMaker:
     def __init__(self):
@@ -56,6 +60,23 @@ class ImprovedBaldMaker:
         bald_image_base64 = base64.b64encode(buffer).decode()
 
         return bald_image_base64
+    
+def make_bald_jinu(file: UploadFile, file_name : str):
+    file_path = f'./user_image_origin/{file_name}'
+    
+    with open(file_path, 'wb') as f: #save file
+        f.write(file.file.read())
+    
+    segmenter = HairSegmenter()
+    image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+    print(file_path)
+    segmenter.resize_and_show(image, window_name=file_path)
+
+    output = segmenter.segment_hair(file_path)
+    timestamp = str(int(time.time()))
+    output_file_path = f'./user_image_bald/{timestamp}.png'
+    cv2.imwrite(output_file_path, output)
+    return f'/static/{timestamp}.png'
 
 def make_bald_advanced(image_base64):
     try:
